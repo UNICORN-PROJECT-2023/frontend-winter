@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import ListDetailProvider from './providers/ListDetailProvider';
+import ListDetailScreen from './screens/ListDetailScreen';
+import ListsScreen from './screens/ListsScreen';
 
 import './App.css';
 
@@ -10,7 +11,8 @@ function App() {
       <BrowserRouter>
           <Routes>
             <Route path="/" element={<></>} />
-            <Route path="/list/:id" element={<ListDetailProvider/>}/>
+            <Route path="/lists" element={<ListsScreen/>}/>
+            <Route path="/list/:id" element={<ListDetailScreen/>}/>
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
       </BrowserRouter>

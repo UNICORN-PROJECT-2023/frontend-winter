@@ -1,4 +1,34 @@
-
+// it should be async function later it will fetch data from server
+export async function getLists() {
+    return {
+        data: [
+            {
+                id: 1,
+                name: "My first list",
+                type: "owner",
+                status: "active",
+            },
+            {
+                id: 2,
+                name: "My second list",
+                type: "owner",
+                status: "active",
+            },
+            {
+                id: 3,
+                name: "Shared list",
+                type: "member",
+                status: "active",
+            },
+            {
+                id: 4,
+                name: "Archived list",
+                type: "owner",
+                status: "archived",
+            }
+        ]
+    }
+}
 
 // it should be async function later it will fetch data from server
 export async function getArticleById(id) {

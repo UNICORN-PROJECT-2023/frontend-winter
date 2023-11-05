@@ -8,10 +8,10 @@ const ItemContainer = styled.div`
   border-radius: 5px;
   cursor: pointer;
   display: flex;
-  align-items: center;
+  align-items: left;
   justify-content: space-between;
   background-color: #f9f9f9;
-
+  gap 10px;
   &:hover {
     background-color: #f0f0f0;
   }
@@ -40,6 +40,7 @@ const ItemButton = styled.button`
 const ItemComponent = ({
   id,
   title,
+  layoutType,
   onClickCallback,
   showButton,
   showSecondaryButton,
@@ -49,7 +50,7 @@ const ItemComponent = ({
   onSecondaryButtonClickCallback,
 }) => {
   return (
-    <ItemContainer onClick={() => onClickCallback(id)}>
+    <ItemContainer onClick={() => onClickCallback(id)} style={layoutType == "block" ? { width: 150, flexDirection: "column" } : {}}>
       <ItemTitle>{title}</ItemTitle>
       <div>
         {showSecondaryButton && (
