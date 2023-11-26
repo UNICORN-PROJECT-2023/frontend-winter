@@ -1,8 +1,10 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { getLists, } from '../services/ListsService';
+import React, { useState, useEffect, useContext } from 'react';
+import { getLists, createList, deleteList } from '../services/ListsService';
 import ListsPage from '../pages/ListsPage';
+import { AppContext } from '../providers/AppProvider';
 
 const ListsScreen = ({ children }) => {
+  const { appState, setAppState } = useContext(AppContext);
   const [lists, setLists] = useState([]);
 
   useEffect(() => {
@@ -10,9 +12,19 @@ const ListsScreen = ({ children }) => {
   }, []);
 
   const fetchLists = async () => {
+    setAppState("loading");
+    
     const result = await getLists();
-    const listsData = result.data; // Assuming this is the structure that getLists returns
+
+    if(!result.success) {
+      console.error("Error fetching lists: ", result.error);
+      setAppState("error");
+      return;
+    }
+
+    const listsData = result.body.data;
     setLists(listsData);
+    setAppState("ready");
   };
 
   const onListClick = (listId) => {
@@ -23,6 +35,7 @@ const ListsScreen = ({ children }) => {
   const onAddNewListClickCallback = async (title) => {
     const newListTitle = prompt('Enter new list title:');
     const newList = { id: Date.now(), name: newListTitle, type: 'owner', status: 'active' }; // This should be returned from the backend
+    await createList(newList);
     setLists(prevLists => [...prevLists, newList]);
   };
 
@@ -31,6 +44,7 @@ const ListsScreen = ({ children }) => {
 
     if (confirmation) {
       // set the list status to archived
+      await deleteList(listId);
       setLists(prevLists => prevLists.map(list => list.id === listId ? { ...list, status: 'archived' } : list));
     }
   };

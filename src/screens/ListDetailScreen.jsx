@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ListDetailPage from '../pages/ListDetailPage';
 import { useParams } from 'react-router-dom';
-import { getArticleById } from '../services/ListsService';
+import { getListById, updateList } from '../services/ListsService';
+import { AppContext } from '../providers/AppProvider';
 
 const ListDetailScreen = () => {
+  const { appState, setAppState } = useContext(AppContext);
   const { id } = useParams();
 
   const [data, setData] = useState({
@@ -20,27 +22,39 @@ const ListDetailScreen = () => {
   }, [id]);
 
   const fetchData = async () => {
-    const response = await getArticleById(id);
-    // Assume the response will have the necessary structure
-    setData(response.data);
+    setAppState("loading");
+    const response = await getListById(id);
+
+    if (!response.success) {
+      console.error("Error fetching list: ", response.error);
+      setAppState("error");
+      return;
+    }
+
+    const listData = response.body.data;
+    setData(listData);
+    setAppState("ready");
   };
 
-  const onItemNameEditCallback = () => {
+  const onItemNameEditCallback = async () => {
     const newName = prompt('Enter new name:', data.name);
     if (newName) {
+      await updateList(id, { name: newName });
       setData({ ...data, name: newName });
     }
   };
 
-  const handleAddMember = () => {
+  const handleAddMember = async () => {
     const newMemberName = prompt('Enter new member name:');
     if (newMemberName) {
       const newMember = { id: Date.now(), title: newMemberName };
+      await updateList(id, { members: [...data.members, newMember] });
       setData({ ...data, members: [...data.members, newMember] });
     }
   };
 
-  const handleDeleteMember = (memberId) => {
+  const handleDeleteMember = async (memberId) => {
+    await updateList(id, { members: data.members.filter(member => member.id !== memberId)  });
     setData({ ...data, members: data.members.filter(member => member.id !== memberId) });
   };
 
@@ -48,24 +62,28 @@ const ListDetailScreen = () => {
     setShowType(showType === 'ALL' ? 'ACTIVE' : 'ALL');
   };
 
-  const handleAddNewItem = () => {
+  const handleAddNewItem = async () => {
     const newItemTitle = prompt('Enter new item title:');
     if (newItemTitle) {
       const newItem = { id: Date.now(), title: newItemTitle, active: true };
+      await updateList(id, { items: [...data.items, newItem] });
       setData({ ...data, items: [...data.items, newItem] });
     }
   };
 
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId) => {
+    await updateList(id, { items: data.items.filter(item => item.id !== itemId) });
     setData({ ...data, items: data.items.filter(item => item.id !== itemId) });
   };
 
-  const handleProcessItem = (itemId) => {
+  const handleProcessItem = async (itemId) => {
+    await updateList(id, { items: data.items.map(item => item.id === itemId ? { ...item, active: false } : item) });
     setData({ ...data, items: data.items.map(item => item.id === itemId ? { ...item, active: false } : item) });
   }
 
-  const handleLeaveList = () => {
+  const handleLeaveList = async () => {
     alert('You left the list!, redirecting to home page...');
+    await updateList(id, { members: data.members.filter(member => member.id !== appState?.user?.id) });
     window.location.href = '/';
   }
 

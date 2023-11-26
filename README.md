@@ -12,6 +12,10 @@
 
 * npm run start
 
+## Production
+
+* npm run serve
+
 ## Build by unicorn requirements
 
 * npm run build
